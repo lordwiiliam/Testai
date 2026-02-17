@@ -1,0 +1,22 @@
+name: Heartbeat_System
+on:
+  schedule:
+    - cron: '0 * * * *' # Запуск раз в час (бесплатно)
+  workflow_dispatch: # Позволяет запустить вручную кнопкой
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run Matrix
+        run: |
+          gcc core.c -lm -o core
+          ./core
+      - name: Save State
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add matrix_state.log
+          git commit -m "Cycle Sync 13.10.1986" || exit 0
+          git push
