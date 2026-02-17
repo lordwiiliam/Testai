@@ -2,11 +2,11 @@ name: Heartbeat_System
 
 on:
   schedule:
-    - cron: '0 * * * *' # Каждый час в 00 минут
-  workflow_dispatch:      # Кнопка ручного запуска
+    - cron: '0 * * * *' # Автозапуск каждый час в 00 минут
+  workflow_dispatch:      # Кнопка ручного запуска в меню Actions
 
 permissions:
-  contents: write         # Явное разрешение на пуш в репозиторий
+  contents: write         # Даем боту право записывать файлы в твой репозиторий
 
 jobs:
   build:
@@ -20,18 +20,18 @@ jobs:
           gcc core.c -lm -o core
           ./core
 
-            - name: Save State
+      - name: Save State
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           
-          # 1. Сначала добавляем изменения в индекс
+          # 1. Добавляем измененный лог в индекс
           git add matrix_state.log
           
-          # 2. Теперь делаем pull. Если есть конфликты, берем НАШУ версию лога
+          # 2. Подтягиваем изменения с сервера (если они были), разрешая конфликты в нашу пользу
           git pull origin main --rebase -X ours
           
-          # 3. Фиксируем и отправляем
+          # 3. Делаем коммит и пушим только если есть изменения
           if ! git diff --cached --quiet; then
             git commit -m "Cycle Sync 13.10.1986 [$(date)]"
             git push origin main
