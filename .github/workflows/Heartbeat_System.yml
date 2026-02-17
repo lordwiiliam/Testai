@@ -20,18 +20,18 @@ jobs:
           gcc core.c -lm -o core
           ./core
 
-      - name: Save State
+            - name: Save State
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           
-          # 1. Забираем изменения с сервера
-          git pull origin main --rebase
-          
-          # 2. Добавляем обновленный лог
+          # 1. Сначала добавляем изменения в индекс
           git add matrix_state.log
           
-          # 3. Фиксируем и пушим
+          # 2. Теперь делаем pull. Если есть конфликты, берем НАШУ версию лога
+          git pull origin main --rebase -X ours
+          
+          # 3. Фиксируем и отправляем
           if ! git diff --cached --quiet; then
             git commit -m "Cycle Sync 13.10.1986 [$(date)]"
             git push origin main
