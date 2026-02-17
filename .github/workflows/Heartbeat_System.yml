@@ -1,22 +1,34 @@
 name: Heartbeat_System
+
 on:
   schedule:
-    - cron: '0 * * * *' # Запуск раз в час (бесплатно)
-  workflow_dispatch: # Позволяет запустить вручную кнопкой
+    - cron: '0 * * * *' # Каждый час в 00 минут
+  workflow_dispatch:      # Кнопка ручного запуска
+
+permissions:
+  contents: write         # Явное разрешение на пуш в репозиторий
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout Code
+        uses: actions/checkout@v4 # Обновили до v4
+
       - name: Run Matrix
         run: |
           gcc core.c -lm -o core
           ./core
+
       - name: Save State
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add matrix_state.log
-          git commit -m "Cycle Sync 13.10.1986" || exit 0
-          git push
+          # Фиксируем изменения, только если файл реально изменился
+          if ! git diff --cached --quiet; then
+            git commit -m "Cycle Sync 13.10.1986 [$(date)]"
+            git push
+          else
+            echo "No changes to commit"
+          fi
