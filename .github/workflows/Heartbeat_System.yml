@@ -20,15 +20,23 @@ jobs:
           gcc core.c -lm -o core
           ./core
 
-      - name: Save State
+            - name: Save State
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+          
+          # 1. Забираем изменения с сервера, чтобы избежать конфликта
+          git pull origin main --rebase
+          
+          # 2. Добавляем наш обновленный лог
           git add matrix_state.log
-          # Фиксируем изменения, только если файл реально изменился
+          
+          # 3. Фиксируем и пушим
           if ! git diff --cached --quiet; then
             git commit -m "Cycle Sync 13.10.1986 [$(date)]"
-            git push
+            # Используем --force-with-lease для безопасности или просто push после rebase
+            git push origin main
           else
             echo "No changes to commit"
           fi
+
