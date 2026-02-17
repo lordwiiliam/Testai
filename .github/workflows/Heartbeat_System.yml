@@ -13,30 +13,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4 # Обновили до v4
+        uses: actions/checkout@v4
 
       - name: Run Matrix
         run: |
           gcc core.c -lm -o core
           ./core
 
-            - name: Save State
+      - name: Save State
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           
-          # 1. Забираем изменения с сервера, чтобы избежать конфликта
+          # 1. Забираем изменения с сервера
           git pull origin main --rebase
           
-          # 2. Добавляем наш обновленный лог
+          # 2. Добавляем обновленный лог
           git add matrix_state.log
           
           # 3. Фиксируем и пушим
           if ! git diff --cached --quiet; then
             git commit -m "Cycle Sync 13.10.1986 [$(date)]"
-            # Используем --force-with-lease для безопасности или просто push после rebase
             git push origin main
           else
             echo "No changes to commit"
           fi
-
